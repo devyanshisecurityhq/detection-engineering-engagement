@@ -1,0 +1,29 @@
+title: Kerberoasting Activity via Kerberos Service Ticket Request
+id: 3c2b1a0f-4d5e-6f7a-8b9c-0d1e2f3a4b5c
+status: experimental
+description: Detects Kerberoasting activity where an attacker requests Kerberos service tickets (TGS) for offline cracking
+references:
+    - https://attack.mitre.org/techniques/T1558/003/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.t1558.003
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4769
+        TicketEncryptionType: '0x17'
+        TicketOptions: '0x40810000'
+    filter_machine:
+        ServiceName|endswith: '$'
+    filter_krbtgt:
+        ServiceName: 'krbtgt'
+    condition: selection and not filter_machine and not filter_krbtgt
+falsepositives:
+    - Legacy applications using RC4 encryption
+    - Service accounts with weak encryption
+    - Kerberos troubleshooting
+level: high

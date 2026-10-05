@@ -1,0 +1,35 @@
+title: Suspicious C2 Beaconing via Regular Network Connections
+id: 0f9e8d7c-1a2b-3c4d-5e6f-7a8b9c0d1e2f
+status: experimental
+description: Detects potential command-and-control beaconing behavior via network connections from suspicious processes
+references:
+    - https://attack.mitre.org/techniques/T1071/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.t1071
+logsource:
+    category: network_connection
+    product: windows
+detection:
+    selection:
+        Initiated: 'true'
+        DestinationPort:
+            - 443
+            - 8443
+            - 8080
+            - 53
+    filter_legit:
+        Image|endswith:
+            - '\chrome.exe'
+            - '\firefox.exe'
+            - '\msedge.exe'
+            - '\svchost.exe'
+            - '\explorer.exe'
+    condition: selection and not filter_legit
+falsepositives:
+    - Legitimate applications connecting to cloud services
+    - Software updates
+    - Web browsers
+level: medium

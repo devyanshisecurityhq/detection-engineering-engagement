@@ -1,0 +1,39 @@
+title: Suspicious Windows Service Creation via sc.exe
+id: 2b1a0f9e-3c4d-5e6f-7a8b-9c0d1e2f3a4b
+status: experimental
+description: Detects creation of suspicious Windows services using sc.exe, a common persistence and privilege escalation technique
+references:
+    - https://attack.mitre.org/techniques/T1543/003/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.t1543.003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        Image|endswith: '\sc.exe'
+    selection_create:
+        CommandLine|contains:
+            - 'create'
+            - 'config'
+    selection_suspicious:
+        CommandLine|contains:
+            - 'binPath='
+            - 'powershell'
+            - 'cmd.exe'
+            - 'rundll32'
+            - 'mshta'
+            - 'regsvr32'
+            - '\Temp\'
+            - '\AppData\'
+            - '\Public\'
+            - '\ProgramData\'
+    condition: selection_img and selection_create and selection_suspicious
+falsepositives:
+    - Legitimate software installation
+    - System administration scripts
+    - Monitoring agent installation
+level: high

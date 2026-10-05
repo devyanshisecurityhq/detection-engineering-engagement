@@ -1,0 +1,37 @@
+title: Process Injection via CreateRemoteThread
+id: 1a0f9e8d-2b3c-4d5e-6f7a-8b9c0d1e2f3a
+status: experimental
+description: Detects process injection attempts using CreateRemoteThread or similar API calls from suspicious source processes
+references:
+    - https://attack.mitre.org/techniques/T1055/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.t1055
+logsource:
+    category: process_access
+    product: windows
+detection:
+    selection:
+        GrantedAccess|contains:
+            - '0x1f0fff'
+            - '0x1f1fff'
+            - '0x1fffff'
+            - '0x143a'
+            - '0x1410'
+    filter_legit:
+        SourceImage|endswith:
+            - '\svchost.exe'
+            - '\MsMpEng.exe'
+            - '\csrss.exe'
+            - '\services.exe'
+            - '\wininit.exe'
+            - '\lsass.exe'
+    condition: selection and not filter_legit
+falsepositives:
+    - Antivirus/EDR products
+    - Debugging tools
+    - Legitimate software with process access
+level: high
+
