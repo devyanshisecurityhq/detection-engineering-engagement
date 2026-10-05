@@ -1,0 +1,42 @@
+title: Suspicious Rundll32 Execution with JavaScript or Remote DLL
+id: 6b4c3d2e-5a6b-7c8d-9e0f-1a2b3c4d5e6f
+status: experimental
+description: Detects abuse of rundll32.exe to execute JavaScript, remote DLLs, or suspicious DLL exports (LOLBin technique)
+references:
+    - https://attack.mitre.org/techniques/T1218/011/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+     - attack.t1218.011
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        Image|endswith: '\rundll32.exe'
+    selection_suspicious:
+        CommandLine|contains:
+            - 'javascript:'
+            - 'vbscript:'
+            - 'mshtml,'
+            - 'RunHTMLApplication'
+            - 'shell32.dll,ShellExec_RunDLL'
+            - 'url.dll,FileProtocolHandler'
+            - 'url.dll,OpenURL'
+            - 'pcwutl.dll,LaunchApplication'
+            - 'advpack.dll,RegisterOCX'
+            - 'zipfldr.dll,RouteTheCall'
+            - 'shdocvw.dll,OpenURL'
+            - 'http://'
+            - 'https://'
+            - '\AppData\'
+            - '\Temp\'
+            - '\Public\'
+            - '\ProgramData\'
+    condition: selection_img and selection_suspicious
+falsepositives:
+    - Legitimate software using rundll32 for DLL exports
+    - Windows control panel applets
+    - Print spooler operations
+level: high

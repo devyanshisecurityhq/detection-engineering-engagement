@@ -1,0 +1,45 @@
+title: Suspicious WMI Execution via WMIC or PowerShell
+id: 5a3b2c1d-4e5f-6a7b-8c9d-0e1f2a3b4c5d
+status: experimental
+description: Detects abuse of Windows Management Instrumentation (WMI) to execute commands, a common lateral movement and execution technique
+references:
+    - https://attack.mitre.org/techniques/T1047/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.execution
+    - attack.t1047
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_wmic:
+        Image|endswith: '\wmic.exe'
+        CommandLine|contains:
+            - 'process call create'
+            - 'process get'
+            - 'node:'
+            - '/node:'
+            - 'os get'
+    selection_ps_wmi:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        CommandLine|contains:
+            - 'Invoke-WmiMethod'
+            - 'Invoke-CimMethod'
+            - 'Get-WmiObject'
+            - 'gwmi'
+            - 'wmic'
+    selection_xsl:
+        CommandLine|contains:
+            - 'format:'
+            - 'xsl:'
+            - '/format:'
+    condition: (selection_wmic and selection_xsl) or selection_ps_wmi
+falsepositives:
+    - Legitimate system administration scripts
+    - Monitoring tools using WMI
+    - Software deployment tools
+level: high

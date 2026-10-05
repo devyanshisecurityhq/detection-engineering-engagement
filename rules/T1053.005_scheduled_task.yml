@@ -1,0 +1,50 @@
+title: Suspicious Scheduled Task Creation
+id: 7c5d4e3f-6a7b-8c9d-0e1f-2a3b4c5d6e7f
+status: experimental
+description: Detects suspicious scheduled task creation using schtasks.exe or PowerShell cmdlets, a common persistence technique
+references:
+    - https://attack.mitre.org/techniques/T1053/005/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.t1053.005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_schtasks:
+        Image|endswith: '\schtasks.exe'
+        CommandLine|contains:
+            - '/create'
+            - '/Create'
+    selection_suspicious:
+        CommandLine|contains:
+            - 'powershell'
+            - 'cmd.exe'
+            - 'rundll32'
+            - 'mshta'
+            - 'regsvr32'
+            - 'wscript'
+            - 'cscript'
+            - 'AppData'
+            - 'Temp'
+            - 'Public'
+            - 'ProgramData'
+    selection_ps:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        CommandLine|contains:
+            - 'Register-ScheduledTask'
+            - 'New-ScheduledTask'
+            - 'schtasks'
+    condition: (selection_schtasks and selection_suspicious) or selection_ps
+falsepositives:
+    - Legitimate software installations
+    - System maintenance tasks
+    - Backup software
+    - Software deployment tools (SCCM, Intune)
+level: high

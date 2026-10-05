@@ -1,0 +1,41 @@
+title: Suspicious PowerShell Execution
+id: 8a3f2c1e-4b5d-6e7f-8a9b-0c1d2e3f4a5b
+status: experimental
+description: Detects suspicious PowerShell execution with encoded commands or download cradle patterns
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_img:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+    selection_flags:
+        CommandLine|contains:
+            - '-enc'
+            - '-EncodedCommand'
+            - '-e '
+            - 'FromBase64String'
+            - 'DownloadString'
+            - 'DownloadFile'
+            - 'IEX'
+            - 'Invoke-Expression'
+            - 'Bypass'
+            - 'Hidden'
+            - 'nop'
+            - 'noprofile'
+    condition: selection_img and selection_flags
+falsepositives:
+    - Legitimate administrative scripts using encoded commands
+    - Software deployment tools (SCCM, Intune)
+    - Backup or monitoring scripts
+level: medium
+
