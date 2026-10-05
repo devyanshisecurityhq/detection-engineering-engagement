@@ -1,0 +1,33 @@
+title: Lateral Movement via PsExec
+id: 0b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e
+status: experimental
+description: Detects PsExec usage for lateral movement across Windows systems
+references:
+    - https://attack.mitre.org/techniques/T1021/002/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.t1021.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        Image|endswith:
+            - '\psexec.exe'
+            - '\psexec64.exe'
+            - '\PsExec.exe'
+    selection_args:
+        CommandLine|contains:
+            - '\\\\'
+            - '-accepteula'
+            - '-s'
+            - '-u '
+            - '-p '
+    condition: selection_img and selection_args
+falsepositives:
+    - Legitimate system administration
+    - Software deployment
+    - IT support tools
+level: high

@@ -1,0 +1,38 @@
+title: Suspicious DNS Query to Known Malicious TLDs
+id: 9a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d
+status: experimental
+description: Detects DNS queries to TLDs commonly abused for command-and-control and malware distribution
+references:
+    - https://attack.mitre.org/techniques/T1071/004/
+    - https://github.com/sbousseaden/EVTX-ATTACK-SAMPLES
+author: Devyanshi (devyanshisecurityhq)
+date: 2026/10/05
+tags:
+    - attack.t1071.004
+logsource:
+    category: dns_query
+    product: windows
+detection:
+    selection:
+        QueryName|endswith:
+            - '.top'
+            - '.xyz'
+            - '.tk'
+            - '.ml'
+            - '.ga'
+            - '.cf'
+            - '.gq'
+            - '.work'
+            - '.click'
+            - '.link'
+    filter_legit:
+        Image|endswith:
+            - '\chrome.exe'
+            - '\firefox.exe'
+            - '\msedge.exe'
+    condition: selection and not filter_legit
+falsepositives:
+    - Legitimate websites using these TLDs
+    - CDN services
+    - Marketing domains
+level: medium
